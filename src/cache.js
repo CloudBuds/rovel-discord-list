@@ -4,7 +4,7 @@ import users from "./models/users.js";
 import servers from "./models/servers.js";
 globalThis.Cache = {};
 console.log("[CACHE] Started!");
-
+import process from "node:process";
 process.emit("STARTED", {});
 
 function compare(a, b, on) {

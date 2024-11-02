@@ -94,6 +94,7 @@ globalThis.path = path;
 import bots from "./routes/bots.js";
 import non_api from "./routes/non-api.js";
 globalThis.started = false;
+import process from "node:process";
 process.on("STARTED", () => {
   console.log(rovel.text.green(`Everything Started! RDL is ready to go!`));
   globalThis.started = true;

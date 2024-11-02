@@ -1,3 +1,4 @@
+import process from "node:process";
 export default function (req, res, next) {
   if (!globalThis.started) {
     console.log("[WAITING] Booting: " + process.uptime());

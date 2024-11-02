@@ -1,6 +1,7 @@
 Error.stackTraceLimit = Infinity;
 import WebSocket from "isomorphic-ws";
 globalThis.WebSocket = WebSocket;
+import process from "node:process";
 const v = process.version.slice(1, 3);
 if (v < 20 && process.platform != "android") {
   console.error("[ERROR] Node.js v20 or above is required.");
