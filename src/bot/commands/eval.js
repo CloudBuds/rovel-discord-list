@@ -12,7 +12,7 @@ if (client.owners.some((x) => x === message.author.id)) {
       let code = eval(`(async()=>{${codein}})()`);
       if (typeof code !== "string")
         code = (await import("util")).inspect(code, { depth: 0 });
-      if (code == process.env.TOKEN) {
+      if (code == Deno.env.get("TOKEN") {
         code =
           "You're too intelligent right?\nBut im intelligent <:smart:794453219605610509>";
       }

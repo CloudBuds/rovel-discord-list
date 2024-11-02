@@ -34,7 +34,7 @@ router.get("/:id", (req, res) => {
 router.get("/:id/vote", async (req, res) => {
   if (!req.query.key) res.json({ err: "not_logged in" });
   else {
-    fetch(`${process.env.DOMAIN}/api/auth/user?key=${req.query.key}`)
+    fetch(`${Deno.env.get("DOMAIN")}/api/auth/user?key=${req.query.key}`)
       .then((r) => r.json())
       .then((d) => {
         if (d.err) return res.json({ err: "invalid_key" });
@@ -118,7 +118,7 @@ router.post("/:id/edit", (req, res) => {
   if (!req.body.id) return res.json({ err: "no_id" });
   Cache.models.servers.findOne({ id: req.body.id }).then(async (server) => {
     if (!err && !server) err = "server_not_found";
-    await fetch(`${process.env.DOMAIN}/api/auth/user?key=${req.query.key}`)
+    await fetch(`${Deno.env.get("DOMAIN")}/api/auth/user?key=${req.query.key}`)
       .then((r) => r.json())
       .then(async (d) => {
         if (!err && d.err) err = "invalid_key";

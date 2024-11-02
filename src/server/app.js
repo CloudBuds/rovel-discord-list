@@ -1,5 +1,5 @@
-const port = process.env.PORT || 3000;
-process.env.ANNOUNCE = "No Announcements to show!";
+const port = Deno.env.get("PORT") || 3000;
+Deno.env.set("ANNOUNCE", "No Announcements to show!");
 import fs from "node:fs";
 function shuffle(array) {
   var currentIndex = array.length, temporaryValue, randomIndex;
@@ -164,7 +164,7 @@ app.use("/api/comments", comments);
 app.use("/api/embeds", embeds);
 app.use("/api/preferences", prefers);
 app.get("/api/download", (req, res) => {
-  if (req.query.pass != process.env.DOWNLOAD_PASS)
+  if (req.query.pass != Deno.env.get("DOWNLOAD_PASS"))
     return res.status(401).json({ err: "Unauthorized" });
   if (!req.query.pass)
     return res.status(400).json({ err: "Bad Request" });
@@ -216,7 +216,7 @@ app.get("/api/*", (req, res) => { res.status(404).json({ err: 404 }); });
 app.get("/comments", (req, res) => { res.render("comments.ejs"); });
 app.use("/comments", express.static(path.resolve("src/comments")));
 app.get + ("/hi", (req, res) => {
-  fetch(`${process.env.DOMAIN}`).then((r) => r.text()).then((d) => {
+  fetch(`${Deno.env.get("DOMAIN")}`).then((r) => r.text()).then((d) => {
     translate(d, { to: "hi" }).then((re) => { res.send(re.text); });
   });
 });

@@ -7,15 +7,15 @@ import { owners, emojiapprovers, mods, contributors } from "../../data.js";
 var client = new Discord.Client({
   intents: [new Discord.Intents(32767)], //32509
 });
-if (process.env.PUBLIC_TOKEN)
-  client.login(process.env.PUBLIC_TOKEN);
+if (Deno.env.get("PUBLIC_TOKEN"))
+  client.login(Deno.env.get("PUBLIC_TOKEN"));
 globalThis.publicbot = client;
 client.owners = owners;
 client.emojiapprovers = emojiapprovers;
 client.mods = mods;
 client.contributors = contributors;
 client.commands = [];
-const prefix = process.env.PUBLIC_PREFIX || "R!";
+const prefix = Deno.env.get("PUBLIC_PREFIX") || "R!";
 var cooldownearn = new Set();
 client.cooldownearn = cooldownearn;
 
@@ -84,9 +84,9 @@ function DiscordLog({ title, desc, color }) {
     .setTitle(title)
     .setColor(color || "#5865F2")
     .setDescription(desc)
-    .setURL(process.env.DOMAIN)
+    .setURL(Deno.env.get("DOMAIN"))
     .setTimestamp()
-    .setThumbnail(`${process.env.DOMAIN}/favicon.ico`);
+    .setThumbnail(`${Deno.env.get("DOMAIN")}/favicon.ico`);
 
   client.guilds.cache
     .get("602906543356379156")

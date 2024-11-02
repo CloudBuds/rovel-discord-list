@@ -37,7 +37,7 @@ router.get("/bots/:id/owners", (req, res) => {
     const label = req.query.label ? req.query.label : "Owners";
     bot.owner = [];
     for (const id of bot.owners) {
-      await fetch(`${process.env.DOMAIN}/api/client/users/${id}`)
+      await fetch(`${Deno.env.get("DOMAIN")}/api/client/users/${id}`)
         .then((r) => r.json())
         .then(async (d) => {
           await bot.owner.push(d.username);

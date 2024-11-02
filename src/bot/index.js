@@ -6,8 +6,8 @@ var client = new Discord.Client({
   intents: [new Discord.Intents(32767)],
   allowedMentions: { parse: ["users", "roles"], repliedUser: true },
 });
-if (process.env.TOKEN)
-  client.login(process.env.TOKEN);
+if (Deno.env.get("TOKEN"))
+  client.login(Deno.env.get("TOKEN"));
 globalThis.privatebot = client;
 import { fetch } from "rovel.js";
 import { owners, emojiapprovers, mods, contributors } from "../data.js";
@@ -16,7 +16,7 @@ client.emojiapprovers = emojiapprovers;
 client.mods = mods;
 client.contributors = contributors;
 client.commands = [];
-const prefix = process.env.PRIVATE_PREFIX;
+const prefix = Deno.env.get("PRIVATE_PREFIX");
 
 function getMention(mention) {
   if (!mention) return;
@@ -85,9 +85,9 @@ function DiscordLog({ title, desc, color }) {
     .setTitle(title)
     .setColor(color || "#5865F2")
     .setDescription(desc)
-    .setURL(process.env.DOMAIN)
+    .setURL(Deno.env.get("DOMAIN"))
     .setTimestamp()
-    .setThumbnail(`${process.env.DOMAIN}/favicon.ico`);
+    .setThumbnail(`${Deno.env.get("DOMAIN")}/favicon.ico`);
 
   client.guilds.cache
     .get("602906543356379156")
@@ -105,7 +105,7 @@ router.post("/eval", (req, res) => {
   if (!req.body.secret) {
     res.json({ err: "no_secret" });
   } else {
-    if (req.body.secret == process.env.SECRET) {
+    if (req.body.secret == Deno.env.get("SECRET")) {
       const resp = eval(`(async()=>{${req.body.code}})()`);
       res.json({ resp });
     } else {
@@ -212,7 +212,7 @@ router.get("/contributors/:id", (req, res) => {
 });
 router.post("/log", (req, res) => {
   try {
-    if (req.body.secret === process.env.SECRET) {
+    if (req.body.secret === Deno.env.get("SECRET")) {
       if (req.body.desc.length > 2000) {
         req.body.desc = req.body.desc.slice(0, 1997) + "...";
       }
@@ -221,11 +221,11 @@ router.post("/log", (req, res) => {
         .setColor(req?.body?.color || "#5865F2")
         .setDescription(req?.body?.desc || "No description provided.\n:/&&")
         .setImage(req?.body?.attachment)
-        .setURL(req?.body?.url || process.env.DOMAIN)
+        .setURL(req?.body?.url || Deno.env.get("DOMAIN"))
         .setTimestamp()
         .setThumbnail(
           req?.body?.img ||
-          `${process.env.DOMAIN}/assets/img/bot/logo-512.png`
+          `${Deno.env.get("DOMAIN")}/assets/img/bot/logo-512.png`
         );
       if (req.body.channel != "private") {
         client.guilds.cache
@@ -251,11 +251,11 @@ router.post("/log", (req, res) => {
                   req.body.desc || "No description provided.\n:/&&"
                 )
                 .setImage(req.body.attachment)
-                .setURL(req.body.url || process.env.DOMAIN)
+                .setURL(req.body.url || Deno.env.get("DOMAIN"))
                 .setTimestamp()
                 .setThumbnail(
                   req.body.img ||
-                  `${process.env.DOMAIN}/assets/img/bot/logo-512.png`
+                  `${Deno.env.get("DOMAIN")}/assets/img/bot/logo-512.png`
                 )
                 .setFooter(
                   `${client.users.cache.get(owner).username

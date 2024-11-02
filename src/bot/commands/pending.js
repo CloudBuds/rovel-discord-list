@@ -6,7 +6,7 @@ Cache.Bots.find({ added: false }).then(async (bots) => {
     if (args.includes("-t")) {
       let msg = `> Showing the Oldest ${bots.length} Bot(s) for testing:\n`;
       for await (const bot of bots) {
-        await fetch(`${process.env.DOMAIN}/api/client/mainserver/${bot.id}`)
+        await fetch(`${Deno.env.get("DOMAIN")}/api/client/mainserver/${bot.id}`)
           .then((r) => r.json())
           .then(async (d) => {
             if (!d.condition) {
@@ -20,7 +20,7 @@ Cache.Bots.find({ added: false }).then(async (bots) => {
     } else {
       let msg = `> Showing the Oldest ${bots.length} Bot(s) that are not added to this server:\n`;
       for await (const bot of bots) {
-        await fetch(`${process.env.DOMAIN}/api/client/mainserver/${bot.id}`)
+        await fetch(`${Deno.env.get("DOMAIN")}/api/client/mainserver/${bot.id}`)
           .then((r) => r.json())
           .then(async (d) => {
             if (!d.condition) {

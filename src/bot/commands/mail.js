@@ -5,13 +5,13 @@ if (message.channel.type == "DM") {
     message.reply({ content: "📨 Successfully Mailed The Team!" });
     const at = message.attachments.array();
 
-    fetch(`${process.env.DOMAIN}/api/client/log`, {
+    fetch(`${Deno.env.get("DOMAIN")}/api/client/log`, {
       method: "POST",
       headers: {
         "content-type": "application/json",
       },
       body: JSON.stringify({
-        secret: process.env.SECRET,
+        secret: Deno.env.get("SECRET"),
         channel: "838067036080963584",
         title: `[MAIL] Incoming 📥`,
         desc: `**From:** ${message.author.tag} (${

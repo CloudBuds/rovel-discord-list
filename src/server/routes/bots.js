@@ -19,13 +19,13 @@ schedule.scheduleJob(rule, async function () {
       bot.save();
     }
   });
-  fetch(`${process.env.DOMAIN}/api/client/log`, {
+  fetch(`${Deno.env.get("DOMAIN")}/api/client/log`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      secret: process.env.SECRET,
+      secret: Deno.env.get("SECRET"),
       channel: "889695874152804383",
       desc: `It is now the Scheduled Time!\nThe Votes of all (${Cache.AllBots.length}) bots will now be **RESET**!\nStart voting your bots again to reach the top of the Leaderboard!`,
       title: "Votes Reset!",
@@ -43,7 +43,7 @@ schedule.scheduleJob("* 0 * * *", async function () {
 });
 
 function updateBotServers(bot, i) {
-  if (process.env.SELFBOT_TOKEN) {
+  if (Deno.env.get("SELFBOT_TOKEN")) {
     setTimeout(async () => {
       var r = await selfbot(`/oauth2/authorize?client_id=${bot?.id || bot}&scope=bot`);
       bot.servers = await r.bot.approximate_guild_count;
@@ -59,7 +59,7 @@ router.get("/", (req, res) => {
       shuffle(Search(Cache.Bots.clean(Cache.AllBots), req.query.q)).slice(0, 10)
     );
   } else {
-    if (req.query.secret == process.env.SECRET) res.json(Cache.AllBots);
+    if (req.query.secret == Deno.env.get("SECRET")) res.json(Cache.AllBots);
     else {
       const limit = Math.min(req.query.limit || 30, 30);
       const offset = req.query.offset || 0;
@@ -76,7 +76,7 @@ router.get("/top", (req, res) => {
 router.get("/:id/changeVoteType", (req, res) => {
   if (!req.query.key) res.json({ err: "not_logged in" });
   else {
-    fetch(`${process.env.DOMAIN}/api/auth/user?key=${req.query.key}`)
+    fetch(`${Deno.env.get("DOMAIN")}/api/auth/user?key=${req.query.key}`)
       .then((r) => r.json())
       .then((d) => {
         if (d.err) return res.json({ err: "invalid_key" });
@@ -106,15 +106,15 @@ router.get("/report", (req, res) => {
   if (req.query.leaked) {
     var bot = Cache.Bots.findOneByCode(req.query.leaked);
     if (bot) {
-      fetch(`${process.env.DOMAIN}/api/client/log`, {
+      fetch(`${Deno.env.get("DOMAIN")}/api/client/log`, {
         method: "POST",
         headers: {
           "content-type": "application/json",
         },
         body: JSON.stringify({
-          secret: process.env.SECRET,
+          secret: Deno.env.get("SECRET"),
           title: `${bot.tag} Code Leaked!`,
-          desc: `We would like to inform you that your bot code was leaked. Hopefully it was reported by one of our SDKs about it. We have Reset your token. Do update it in your bot's code. Never share your bot's code with anyone!\nPlease get the new token from [here]<${process.env.DOMAIN}/api/bots/${bot.id}/code> \nThank you.`,
+          desc: `We would like to inform you that your bot code was leaked. Hopefully it was reported by one of our SDKs about it. We have Reset your token. Do update it in your bot's code. Never share your bot's code with anyone!\nPlease get the new token from [here]<${Deno.env.get("DOMAIN")}/api/bots/${bot.id}/code> \nThank you.`,
           owners: bot.owners,
           attachment: bot.avatarURL,
           channel: "private",
@@ -161,7 +161,7 @@ router.post("/:id/card", (req, res) => {
 router.get("/:id/vote", async (req, res) => {
   if (!req.query.key) res.json({ err: "not_logged in" });
   else {
-    fetch(`${process.env.DOMAIN}/api/auth/user?key=${req.query.key}`)
+    fetch(`${Deno.env.get("DOMAIN")}/api/auth/user?key=${req.query.key}`)
       .then((r) => r.json())
       .then((d) => {
         if (d.err) return res.json({ err: "invalid_key" });
@@ -210,13 +210,13 @@ router.get("/:id/vote", async (req, res) => {
                 })
                   .then((r) => {
                     if (r.status >= 300 || r.status < 200) {
-                      fetch(`${process.env.DOMAIN}/api/client/log`, {
+                      fetch(`${Deno.env.get("DOMAIN")}/api/client/log`, {
                         method: "POST",
                         headers: {
                           "content-type": "application/json",
                         },
                         body: JSON.stringify({
-                          secret: process.env.SECRET,
+                          secret: Deno.env.get("SECRET"),
                           title: `Failed to send data to ${bot.tag}`,
                           desc: `Uh Oh! It seems as if the bot sent unexpected response!\nThe data we posted was:\n\`\`\`json\n${hmm}\n\`\`\`\nPlease send this data to your bot incase the bot wanted it.`,
                           owners: bot.owners,
@@ -226,13 +226,13 @@ router.get("/:id/vote", async (req, res) => {
                     }
                   })
                   .catch((e) => {
-                    fetch(`${process.env.DOMAIN}/api/client/log`, {
+                    fetch(`${Deno.env.get("DOMAIN")}/api/client/log`, {
                       method: "POST",
                       headers: {
                         "content-type": "application/json",
                       },
                       body: JSON.stringify({
-                        secret: process.env.SECRET,
+                        secret: Deno.env.get("SECRET"),
                         title: `Failed to send data to ${bot.tag}`,
                         desc: `Uh Oh! It seems as if the bot couldn't recieve the vote data!\nThe data we posted was:\n\`\`\`json\n${hmm}\n\`\`\`\nPlease send this data to your bot incase the bot wanted it.`,
                         owners: bot.owners,
@@ -295,13 +295,13 @@ router.get("/:id/vote", async (req, res) => {
                 })
                   .then((r) => {
                     if (r.status >= 300 || r.status < 200) {
-                      fetch(`${process.env.DOMAIN}/api/client/log`, {
+                      fetch(`${Deno.env.get("DOMAIN")}/api/client/log`, {
                         method: "POST",
                         headers: {
                           "content-type": "application/json",
                         },
                         body: JSON.stringify({
-                          secret: process.env.SECRET,
+                          secret: Deno.env.get("SECRET"),
                           title: `Failed to send data to ${bot.tag}`,
                           desc: `Uh Oh! It seems as if the bot sent unexpected response!\nThe data we posted was:\n\`\`\`json\n${hmm}\n\`\`\`\nPlease send this data to your bot incase the bot wanted it.`,
                           owners: bot.owners,
@@ -311,13 +311,13 @@ router.get("/:id/vote", async (req, res) => {
                     }
                   })
                   .catch((e) => {
-                    fetch(`${process.env.DOMAIN}/api/client/log`, {
+                    fetch(`${Deno.env.get("DOMAIN")}/api/client/log`, {
                       method: "POST",
                       headers: {
                         "content-type": "application/json",
                       },
                       body: JSON.stringify({
-                        secret: process.env.SECRET,
+                        secret: Deno.env.get("SECRET"),
                         title: `Failed to send data to ${bot.tag}`,
                         desc: `Uh Oh! It seems as if the bot couldn't recieve the vote data!\nThe data we posted was:\n\`\`\`json\n${hmm}\n\`\`\`\nPlease send this data to your bot incase the bot wanted it.`,
                         owners: bot.owners,
@@ -335,7 +335,7 @@ router.get("/:id/vote", async (req, res) => {
 
 router.post("/evaldb", (req, res) => {
   if (!req.query.key) return res.json({ err: "no_key" });
-  fetch(`${process.env.DOMAIN}/api/auth/user?key=${req.query.key}`)
+  fetch(`${Deno.env.get("DOMAIN")}/api/auth/user?key=${req.query.key}`)
     .then((r) => r.json())
     .then((d) => {
       if (d.err) return res.json({ err: "invalid_key" });
@@ -353,7 +353,7 @@ router.get("/:id/sync", (req, res) => {
   if (!user) {
     res.json({ err: "not_found" });
   } else {
-    fetch(`${process.env.DOMAIN}/api/client/users/` + user.id)
+    fetch(`${Deno.env.get("DOMAIN")}/api/client/users/` + user.id)
       .then((r) => r.json())
       .then((u) => {
         if (
@@ -378,18 +378,18 @@ router.get("/:id/sync", (req, res) => {
           }
           user.save();
           res.json({ success: true, bot: user });
-          fetch(`${process.env.DOMAIN}/api/client/log`, {
+          fetch(`${Deno.env.get("DOMAIN")}/api/client/log`, {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
             },
             body: JSON.stringify({
-              secret: process.env.SECRET,
+              secret: Deno.env.get("SECRET"),
               img: u.avatarURL,
               desc: num,
               title: `Bot ${u.tag} Data Updated!`,
               color: "#FEE75C",
-              url: `${process.env.DOMAIN}/bots/${u.id}`,
+              url: `${Deno.env.get("DOMAIN")}/bots/${u.id}`,
             }),
           });
         }
@@ -400,7 +400,7 @@ router.get("/:id/sync", (req, res) => {
 router.get("/:id/code", (req, res) => {
   if (!req.query.key) return res.json({ err: "no_key" });
 
-  fetch(`${process.env.DOMAIN}/api/auth/user?key=${req.query.key}`)
+  fetch(`${Deno.env.get("DOMAIN")}/api/auth/user?key=${req.query.key}`)
     .then((r) => r.json())
     .then(async (d) => {
       if (d.err) return res.json({ err: "invalid_key" });
@@ -424,7 +424,7 @@ import sanitizeHtml from "sanitize-html";
 import sluggy from "../../utils/sluggy.js";
 router.get("/:id/slug", (req, res) => {
   if (!req.query.key) return res.json({ err: "no_key" });
-  fetch(`${process.env.DOMAIN}/api/auth/user?key=${req.query.key}`)
+  fetch(`${Deno.env.get("DOMAIN")}/api/auth/user?key=${req.query.key}`)
     .then((r) => r.json())
     .then(async (d) => {
       if (d.err) return res.json({ err: "invalid_key" });
@@ -451,7 +451,7 @@ router.get("/:id/slug", (req, res) => {
 });
 
 router.get("/:id", (req, res) => {
-  if (req?.secret == process.env.SECRET) {
+  if (req?.secret == Deno.env.get("SECRET")) {
     let botu = Cache.Bots.clean(Cache.Bots.findOneById(req.params.id));
     botu.code = Cache.Bots.findOneById(req.params.id).code;
     botu.webhook = Cache.Bots.findOneById(req.params.id).webhook;
@@ -479,7 +479,7 @@ router.post("/:id/servers", (req, res) => {
 router.delete("/:id", async (req, res) => {
   if (!req.query.key) return res.json({ err: "no_key" });
 
-  fetch(`${process.env.DOMAIN}/api/auth/user?key=${req.query.key}`)
+  fetch(`${Deno.env.get("DOMAIN")}/api/auth/user?key=${req.query.key}`)
     .then((r) => r.json())
     .then(async (d) => {
       if (d.err) return res.json({ err: "invalid_key" });
@@ -490,13 +490,13 @@ router.delete("/:id", async (req, res) => {
           Bots.deleteOne({ id: req.params.id }, function (err) {
             if (err) return res.json(err);
             res.json({ deleted: true });
-            fetch(`${process.env.DOMAIN}/api/client/log`, {
+            fetch(`${Deno.env.get("DOMAIN")}/api/client/log`, {
               method: "POST",
               headers: {
                 "Content-Type": "application/json",
               },
               body: JSON.stringify({
-                secret: process.env.SECRET,
+                secret: Deno.env.get("SECRET"),
                 desc: `Bot <@!${req.params.id}> has been deleted by <@!${d.id
                   }>\nThe data deleted is:\n\`\`\`\n${JSON.stringify(
                     bot
@@ -505,7 +505,7 @@ router.delete("/:id", async (req, res) => {
                 color: "#ff0000",
                 owners: bot.owners,
                 img: bot.avatarURL,
-                url: process.env.DOMAIN,
+                url: Deno.env.get("DOMAIN"),
               }),
             });
           });
@@ -518,14 +518,14 @@ router.delete("/:id", async (req, res) => {
 router.get("/import/voidbots/:id", (req, res) => {
   if (req.query.key) {
     var userid;
-    fetch(`${process.env.DOMAIN}/api/auth/user?key=${req.query.key}`)
+    fetch(`${Deno.env.get("DOMAIN")}/api/auth/user?key=${req.query.key}`)
       .then((r) => r.json())
       .then((user) => {
         userid = user.id;
         fetch(`https://api.voidbots.net/bot/info/${req.params.id}`, {
           method: "GET",
           headers: {
-            Authorization: `${process.env.VOIDTOKEN}`,
+            Authorization: `${Deno.env.get("VOIDTOKEN")}`,
           },
         })
           .then((r) => r.json())
@@ -549,7 +549,7 @@ router.get("/import/voidbots/:id", (req, res) => {
                 donate: bot.links.donate == "" ? null : bot.links.donate,
                 imported: "Void Bots",
               };
-              fetch(`${process.env.DOMAIN}/api/bots/new`, {
+              fetch(`${Deno.env.get("DOMAIN")}/api/bots/new`, {
                 method: "POST",
                 headers: {
                   "content-type": "application/json",
@@ -573,7 +573,7 @@ router.get("/import/voidbots/:id", (req, res) => {
 router.get("/import/topgg/:id", (req, res) => {
   if (req.query.key) {
     var userid;
-    fetch(`${process.env.DOMAIN}/api/auth/user?key=${req.query.key}`)
+    fetch(`${Deno.env.get("DOMAIN")}/api/auth/user?key=${req.query.key}`)
       .then((r) => r.json())
       .then((user) => {
         userid = user.id;
@@ -604,7 +604,7 @@ router.get("/import/topgg/:id", (req, res) => {
                 website: bot.website,
                 imported: "Top.gg",
               };
-              fetch(`${process.env.DOMAIN}/api/bots/new`, {
+              fetch(`${Deno.env.get("DOMAIN")}/api/bots/new`, {
                 method: "POST",
                 headers: {
                   "content-type": "application/json",
@@ -627,7 +627,7 @@ router.get("/import/topgg/:id", (req, res) => {
 
 router.get("/import/del/:id", (req, res) => {
   if (req.query.key) {
-    fetch(`${process.env.DOMAIN}/api/auth/user?key=${req.query.key}`)
+    fetch(`${Deno.env.get("DOMAIN")}/api/auth/user?key=${req.query.key}`)
       .then((r) => r.json())
       .then((user) => {
         fetch(`https://api.discordextremelist.xyz/v2/bot/${req.params.id}`)
@@ -654,7 +654,7 @@ router.get("/import/del/:id", (req, res) => {
                       : bot.bot.links.donation,
                   imported: "DEL",
                 };
-                fetch(`${process.env.DOMAIN}/api/bots/new`, {
+                fetch(`${Deno.env.get("DOMAIN")}/api/bots/new`, {
                   method: "POST",
                   headers: {
                     "content-type": "application/json",
@@ -681,7 +681,7 @@ router.post("/edit", async (req, res) => {
   if (!req.body.id) return res.json({ err: "no_id" });
   Bots.findOne({ id: req.body.id }).then(async (bot) => {
     if (!err && !bot) err = "bot_not_found";
-    fetch(`${process.env.DOMAIN}/api/auth/user?key=${req.query.key}`)
+    fetch(`${Deno.env.get("DOMAIN")}/api/auth/user?key=${req.query.key}`)
       .then((r) => r.json())
       .then(async (d) => {
         if (!err && d.err) err = "invalid_key";
@@ -704,7 +704,7 @@ router.post("/edit", async (req, res) => {
         var cond = true;
 
         fetch(
-          `${process.env.DOMAIN}/api/client/mainserver/${req.body.owners[0]}`
+          `${Deno.env.get("DOMAIN")}/api/client/mainserver/${req.body.owners[0]}`
         )
           .then((r) => r.json())
           .then((d) => {
@@ -846,7 +846,7 @@ router.post("/new", async (req, res) => {
           if (!err && !req.body.id) err = "no_id";
           fetch(`https://discord.com/api/v10/users/${req.body.id}`, {
             headers: {
-              Authorization: `Bot ${process.env.TOKEN}`,
+              Authorization: `Bot ${Deno.env.get("TOKEN")}`,
             },
           })
             .then((r) => r.json())
@@ -940,7 +940,7 @@ router.post("/new", async (req, res) => {
               }
 
               fetch(
-                `${process.env.DOMAIN}/api/client/mainserver/${req.body.owners[0]}`
+                `${Deno.env.get("DOMAIN")}/api/client/mainserver/${req.body.owners[0]}`
               )
                 .then((r) => r.json())
                 .then((d) => {
@@ -954,7 +954,7 @@ router.post("/new", async (req, res) => {
                   user.avatar = (user.discriminator % 5).toString();
                 }
                 fetch(
-                  `${process.env.DOMAIN}/api/client/mainserver/${req.body.id}`
+                  `${Deno.env.get("DOMAIN")}/api/client/mainserver/${req.body.id}`
                 )
                   .then((r) => r.json())
                   .then((dd) => {
@@ -997,13 +997,13 @@ router.post("/new", async (req, res) => {
                             ?.catch((e) => console.log(e));
                         });
                         res.send({ success: true });
-                        fetch(`${process.env.DOMAIN}/api/client/log`, {
+                        fetch(`${Deno.env.get("DOMAIN")}/api/client/log`, {
                           method: "POST",
                           headers: {
                             "Content-Type": "application/json",
                           },
                           body: JSON.stringify({
-                            secret: process.env.SECRET,
+                            secret: Deno.env.get("SECRET"),
                             img: bot.avatarURL,
                             desc: `**${user.username}** has been ${!bot.imported
                               ? "added"
@@ -1016,7 +1016,7 @@ router.post("/new", async (req, res) => {
                             title: `New Bot Added!`,
                             color: "#31CB00",
                             owners: bot.owners,
-                            url: `${process.env.DOMAIN}/bots/${bot.id}`,
+                            url: `${Deno.env.get("DOMAIN")}/bots/${bot.id}`,
                           }),
                         });
                       }

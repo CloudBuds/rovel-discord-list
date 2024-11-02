@@ -13,7 +13,7 @@ imglink: bot.bg
        var coins = document.getElementById("coins");
        var submitbutton = document.getElementById("submitbutton");
        submitbutton.classList.add("is-loading");
-       fetch(`<%= process.env.DOMAIN %>/api/bots/<%= bot.id %>/vote?coins=${coins.value}`).then(r=>r.json()).then(d=>{
+       fetch(`<%= Deno.env.get("DOMAIN") %>/api/bots/<%= bot.id %>/vote?coins=${coins.value}`).then(r=>r.json()).then(d=>{
         submitbutton.classList.remove("is-loading");
         if(d.err){
          if(d.err=="coins_not_divisible") d.err="The amount you requested to spend is not divisible by 10. Remember: R$10 = 1 vote"
@@ -22,7 +22,7 @@ imglink: bot.bg
         }
         else{
          Swal.fire({icon: "success", title: `You Voted <%= bot.username %> with R$ ${coins.value}!`}).then(()=>{
-           window.location="<%= process.env.DOMAIN %>/bots/<%= bot.id %>"
+           window.location="<%= Deno.env.get("DOMAIN") %>/bots/<%= bot.id %>"
          })
         }
        })
@@ -75,14 +75,14 @@ imglink: bot.bg
   function addVote(){
    var submitbutton = document.getElementById("submitbutton");
    submitbutton.classList.add("is-loading");
-   fetch(`<%= process.env.DOMAIN %>/api/bots/<%= bot.id %>/vote`).then(r=>r.json()).then(d=>{
+   fetch(`<%= Deno.env.get("DOMAIN") %>/api/bots/<%= bot.id %>/vote`).then(r=>r.json()).then(d=>{
     submitbutton.classList.remove("is-loading");
     if(!d.success){
      Swal.fire({icon: "error", title: "Please wait before your next vote!",  footer: `Try after ${d.try_after}`});
     }
     else{
      Swal.fire({icon: "success", title: `You Voted <%= bot.username %>!`, footer: "Come back again tommorow!"}).then(()=>{
-       window.location="<%= process.env.DOMAIN %>/bots/<%= bot.id %>"
+       window.location="<%= Deno.env.get("DOMAIN") %>/bots/<%= bot.id %>"
      })
     }
    })

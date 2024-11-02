@@ -13,7 +13,7 @@ rovel.fetch = function (url, opts) {
   return fetch(encodeURI(url), opts);
 };
 import mongoose from "mongoose";
-mongoose.connect(process.env.DB || "mongodb://127.0.0.1:27017/test", {
+mongoose.connect(Deno.env.get("DB") || "mongodb://127.0.0.1:27017/test", {
   useNewUrlParser: true,
   useNewUrlParser: true,
   useUnifiedTopology: true,
@@ -21,7 +21,7 @@ mongoose.connect(process.env.DB || "mongodb://127.0.0.1:27017/test", {
 import shell from "shelljs";
 globalThis.shell = shell;
 import * as loggy from "./utils/loggy.js";
-if (process.env.WEBLOG_CONSOLE == "true") {
+if (Deno.env.get("WEBLOG_CONSOLE") == "true") {
   globalThis.logg = console.log;
   globalThis.console.log = loggy.log;
   globalThis.logerr = console.error;
@@ -37,12 +37,12 @@ globalThis.console.debug = function (obj) {
   } else console.log(obj);
 };
 
-if (!process.env.DOMAIN) {
+if (!Deno.env.get("DOMAIN")) {
   console.error("[ERROR] No Domain Given!");
   process.exit(0);
 }
-if (process.env.DOMAIN.endsWith("/")) {
-  process.env.DOMAIN = process.env.DOMAIN.slice(0, -1);
+if (Deno.env.get("DOMAIN").endsWith("/")) {
+  Deno.env.set("DOMAIN",Deno.env.get("DOMAIN").slice(0, -1));
 }
 globalThis.db = mongoose.connection;
 
@@ -56,9 +56,9 @@ import "./bot/index.js"
 
 import Sentry from "@sentry/node";
 import Tracing from "@sentry/tracing";
-if (process.env.SENTRY) {
+if (Deno.env.get("SENTRY")) {
   Sentry.init({
-    dsn: process.env.SENTRY,
+    dsn: Deno.env.get("SENTRY"),
     tracesSampleRate: 1.0,
   });
   console.log(
@@ -118,8 +118,8 @@ process.on("SIGINT", () => {
 
 globalThis.isCopy = function () {
   if (
-    process.env.DOMAIN != "https://discord.rovelstars.com" &&
-    (!process.env.DOMAIN.includes("localhost:") || !process.env.DOMAIN.includes("127.0.0.1:"))
+    Deno.env.get("DOMAIN") != "https://discord.rovelstars.com" &&
+    (!Deno.env.get("DOMAIN").includes("localhost:") || !Deno.env.get("DOMAIN").includes("127.0.0.1:"))
   ) {
     return false;
   } else return true;
@@ -136,11 +136,11 @@ globalThis.server = app.listen(port, () => {
 globalThis.selfbot = async function (path) {
   return await fetch(`https://discord.com/api/v9${path}`, {
     headers: {
-      Authorization: process.env.SELFBOT_TOKEN || "failure management",
+      Authorization: Deno.env.get("SELFBOT_TOKEN") || "failure management",
     },
   }).then((r) => r.json());
 };
-if (process.env.SELFBOT_TOKEN) {
+if (Deno.env.get("SELFBOT_TOKEN")) {
   selfbot("/users/@me").then((user) => {
     if (user.message == "401: Unauthorized") {
       console.log("[SELFBOT] Failed to login:");
@@ -237,7 +237,7 @@ rovel.approx = function (num, opts) {
   }
 };
 
-globalThis.TOPTOKENS = process.env.TOPTOKEN?.split?.("|") || [];
+globalThis.TOPTOKENS = Deno.env.get("TOPTOKEN")?.split?.("|") || [];
 globalThis.TOPGGTOKEN = function () {
   const index = Math.floor(Math.random() * (TOPTOKENS.length - 1) + 1);
   return TOPTOKENS[index];

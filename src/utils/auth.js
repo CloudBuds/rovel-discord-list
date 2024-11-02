@@ -1,5 +1,5 @@
 import OAuthClient from "disco-oauth";
-const auth = new OAuthClient(process.env.ID, process.env.SECRET);
+const auth = new OAuthClient(Deno.env.get("ID"), Deno.env.get("SECRET"));
 auth.scopes = ["identify", "email", "guilds.join"];
-auth.redirectURI = `${process.env.DOMAIN}/api/auth`;
+auth.redirectURI = `${Deno.env.get("DOMAIN")}/api/auth`;
 export default auth;

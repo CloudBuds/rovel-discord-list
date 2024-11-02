@@ -20,7 +20,7 @@ client.on("presenceUpdate", (olduserr, newuser) => {
                 .setTitle(`${bot.tag} is OFFLINE`)
                 .setColor("#36393f")
                 .setDescription(`${bot.username} (${bot.id}) is Offline!`)
-                .setURL(`${process.env.DOMAIN}/bots/${bot.id}`)
+                .setURL(`${Deno.env.get("DOMAIN")}/bots/${bot.id}`)
                 .setTimestamp()
                 .setThumbnail(bot.avatarURL);
 
@@ -39,7 +39,7 @@ client.on("presenceUpdate", (olduserr, newuser) => {
                 .setTitle(`${bot.tag} is ONLINE!`)
                 .setColor("#FEF40E")
                 .setDescription(`${bot.username} (${bot.id}) is back Online!`)
-                .setURL(`${process.env.DOMAIN}/bots/${bot.id}`)
+                .setURL(`${Deno.env.get("DOMAIN")}/bots/${bot.id}`)
                 .setTimestamp()
                 .setThumbnail(bot.avatarURL);
 

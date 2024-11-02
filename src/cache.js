@@ -180,7 +180,7 @@ Bots.importByID = function (id, message) {
         website: bot.website,
         imported: "Backup DB",
       };
-      fetch(`${process.env.DOMAIN}/api/bots/new`, {
+      fetch(`${Deno.env.get("DOMAIN")}/api/bots/new`, {
         method: "POST",
         headers: {
           "content-type": "application/json",

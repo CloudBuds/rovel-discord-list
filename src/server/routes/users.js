@@ -9,7 +9,7 @@ router.get("/", (req, res) => {
   if (req.query.q) {
     res.json(shuffle(Search(Cache.Users.clean(Cache.AllUsers), req.query.q)).slice(0, 10));
   } else {
-    if (req.query.secret == process.env.SECRET) res.json(Cache.AllUsers);
+    if (req.query.secret == Deno.env.get("SECRET")) res.json(Cache.AllUsers);
     else res.json(Cache.Users.clean(Cache.AllUsers));
   }
 });
@@ -26,18 +26,18 @@ router.get("/:id/delete", (req, res) => {
       if (!user) return;
       //logout
       if (req.cookies["key"]) {
-        fetch(`${process.env.DOMAIN}/api/client/log`, {
+        fetch(`${Deno.env.get("DOMAIN")}/api/client/log`, {
           method: "POST",
           headers: {
             "content-type": "application/json",
           },
           body: JSON.stringify({
-            secret: process.env.SECRET,
+            secret: Deno.env.get("SECRET"),
             title: `${user ? user.tag : "IDK who"} Logged out!`,
             desc: `Bye bye ${user ? user.tag : "Unknown Guy"
               }\nSee you soon back on RDL!`,
             color: "#ff0000",
-            img: user ? user.avatarURL : `${process.env.DOMAIN}/favicon.ico`,
+            img: user ? user.avatarURL : `${Deno.env.get("DOMAIN")}/favicon.ico`,
             owners: user ? user.id : null,
           }),
         });
@@ -45,19 +45,19 @@ router.get("/:id/delete", (req, res) => {
       }
 
       res.json({ deleted: true });
-      fetch(`${process.env.DOMAIN}/api/client/log`, {
+      fetch(`${Deno.env.get("DOMAIN")}/api/client/log`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          secret: process.env.SECRET,
+          secret: Deno.env.get("SECRET"),
           desc: `${user.tag} deleted their account!\n**R$ wasted**: ${user.bal}\nIncase it was deleted accidentally, the above data may be added back again manually if the user is added back to RDL`,
           title: "User Deleted!",
           color: "#ff0000",
           owners: [user.id],
           img: user.avatarURL,
-          url: process.env.DOMAIN,
+          url: Deno.env.get("DOMAIN"),
         }),
       });
       Cache.Users.deleteOne({ id: user.id }, () => { });
@@ -68,7 +68,7 @@ router.get("/:id/sync", (req, res) => {
   Users.findOne({ id: req.params.id }).then((user) => {
     if (!user) return res.json({ err: "not_found" });
     else {
-      fetch(`${process.env.DOMAIN}/api/client/users/` + user.id)
+      fetch(`${Deno.env.get("DOMAIN")}/api/client/users/` + user.id)
         .then((r) => r.json())
         .then((u) => {
           if (
@@ -88,20 +88,20 @@ router.get("/:id/sync", (req, res) => {
               user.discriminator = u.discriminator;
             }
             user.save();
-            fetch(`${process.env.DOMAIN}/api/client/log`, {
+            fetch(`${Deno.env.get("DOMAIN")}/api/client/log`, {
               method: "POST",
               headers: {
                 "Content-Type": "application/json",
               },
               body: JSON.stringify({
-                secret: process.env.SECRET,
+                secret: Deno.env.get("SECRET"),
                 img: u.avatarURL,
                 desc: `New Data Saved:\n\`\`\`json\n${JSON.stringify(
                   user
                 )}\n\`\`\``,
                 title: ` User ${u.tag} Data Updated!`,
                 color: "#FEE75C",
-                url: `${process.env.DOMAIN}/users/${u.id}`,
+                url: `${Deno.env.get("DOMAIN")}/users/${u.id}`,
               }),
             });
             res.json({ success: true });
