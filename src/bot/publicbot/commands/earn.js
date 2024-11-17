@@ -5,7 +5,7 @@ if (cooldownearn.has(message.author.id)) {
     if (!user)
       message.reply({
         content:
-          `Nani?! You're not logged in!\nPlease login to RDL to make an account in order to recieve money!\nLogin link:\n${process.env.DOMAIN}`,
+          `Nani?! You're not logged in!\nPlease login to RDL to make an account in order to recieve money!\nLogin link:\n${Deno.env.get("DOMAIN")}`,
       });
     else {
       let act = false;

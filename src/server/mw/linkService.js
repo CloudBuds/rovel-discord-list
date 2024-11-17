@@ -1,4 +1,5 @@
-let router = require("express").Router();
+import { Router } from "express";
+const router = Router();
 
 router.all("*", (req, res, next) => {
   if (req.hostname == "rovelstars.com") {
@@ -16,7 +17,7 @@ router.get("/b/:slug", (req, res, next) => {
       if (!bot) {
         res.status(404).render("404.ejs", {path : req.originalUrl});
       } else {
-        res.redirect(`${process.env.DOMAIN}/bots/${bot.id}`);
+        res.redirect(`${Deno.env.get("DOMAIN")}/bots/${bot.id}`);
       }
     });
   }
@@ -44,7 +45,7 @@ router.get("/b/:slug/vote", (req, res, next) => {
       if (!bot) {
         res.status(404).render("404.ejs", {path : req.originalUrl});
       } else {
-        res.redirect(`${process.env.DOMAIN}/bots/${bot.id}/vote`);
+        res.redirect(`${Deno.env.get("DOMAIN")}/bots/${bot.id}/vote`);
       }
     });
   }
@@ -58,7 +59,7 @@ router.get("/s/:slug", (req, res, next) => {
       if (!server) {
         res.status(404).render("404.ejs", {path : req.originalUrl});
       } else {
-        res.redirect(`${process.env.DOMAIN}/servers/${server.id}`);
+        res.redirect(`${Deno.env.get("DOMAIN")}/servers/${server.id}`);
       }
     });
   }
@@ -66,10 +67,10 @@ router.get("/s/:slug", (req, res, next) => {
 
 router.get("*", (req, res, next) => {
   if (req.hostname == "dscrdly.com") {
-    res.redirect(`${process.env.DOMAIN}${req.originalUrl}`);
+    res.redirect(`${Deno.env.get("DOMAIN")}${req.originalUrl}`);
   } else {
     next();
   }
 });
 
-module.exports = router;
+export default router;

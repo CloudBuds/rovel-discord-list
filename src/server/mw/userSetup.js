@@ -1,6 +1,6 @@
-const { langs } = require("../../data.js");
+import { langs } from "../../data.js";
 
-module.exports = async function (req, res, next) {
+export default async function (req, res, next) {
   res.locals.req = req;
   var themes = ["discord", "dracula", "paranoid"];
   if (!themes.includes(req.cookies["theme"])) {
@@ -59,14 +59,14 @@ module.exports = async function (req, res, next) {
             httpOnly: true,
             secure: true,
           });
-          res.redirect(`${(req.originalUrl.startsWith(`${process.env.DOMAIN}/dashboard`) || req.originalUrl.startsWith(`${process.env.DOMAIN}/login`))?"/":req.originalUrl}?alert=key_refreshed`);
+          res.redirect(`${(req.originalUrl.startsWith(`${Deno.env.get("DOMAIN")}/dashboard`) || req.originalUrl.startsWith(`${Deno.env.get("DOMAIN")}/login`))?"/":req.originalUrl}?alert=key_refreshed`);
         } else {
           res.cookie("key", "", { maxAge: 0 });
-          res.redirect(`${(req.originalUrl.startsWith(`${process.env.DOMAIN}/dashboard`) || req.originalUrl.startsWith(`${process.env.DOMAIN}/login`))?"/":req.originalUrl}?alert=logout`);
+          res.redirect(`${(req.originalUrl.startsWith(`${Deno.env.get("DOMAIN")}/dashboard`) || req.originalUrl.startsWith(`${Deno.env.get("DOMAIN")}/login`))?"/":req.originalUrl}?alert=logout`);
         }
       } catch (e) {
         res.cookie("key", "", { maxAge: 0 });
-        res.redirect(`${(req.originalUrl.startsWith(`${process.env.DOMAIN}/dashboard`) || req.originalUrl.startsWith(`${process.env.DOMAIN}/login`))?"/":req.originalUrl}?alert=logout`);
+        res.redirect(`${(req.originalUrl.startsWith(`${Deno.env.get("DOMAIN")}/dashboard`) || req.originalUrl.startsWith(`${Deno.env.get("DOMAIN")}/login`))?"/":req.originalUrl}?alert=logout`);
       }
     });
   }

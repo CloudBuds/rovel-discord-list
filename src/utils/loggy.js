@@ -1,6 +1,6 @@
-const { fetch } = require("rovel.js");
+import { fetch } from "rovel.js";
 function log(text) {
-  fetch(process.env.CONSOLE_LOG, {
+  fetch(Deno.env.get("CONSOLE_LOG"), {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -10,11 +10,11 @@ function log(text) {
       content: text,
     }),
   });
-  if (process.env.CONSOLE_LOG) globalThis.logg(text);
+  if (Deno.env.get("CONSOLE_LOG")) globalThis.logg(text);
 }
 
 function error(text) {
-  fetch(process.env.CONSOLE_LOG, {
+  fetch(Deno.env.get("CONSOLE_LOG"), {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -24,11 +24,11 @@ function error(text) {
       content: text,
     }),
   });
-  if (process.env.CONSOLE_LOG) globalThis.logerr(text);
+  if (Deno.env.get("CONSOLE_LOG")) globalThis.logerr(text);
 }
 
 function warn(text) {
-  fetch(process.env.CONSOLE_LOG, {
+  fetch(Deno.env.get("CONSOLE_LOG"), {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -38,6 +38,6 @@ function warn(text) {
       content: text,
     }),
   });
-  if (process.env.CONSOLE_LOG) globalThis.warnn(text);
+  if (Deno.env.get("CONSOLE_LOG")) globalThis.warnn(text);
 }
-module.exports = { log, error, warn };
+export { log, error, warn };

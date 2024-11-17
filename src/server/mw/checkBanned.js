@@ -1,17 +1,17 @@
-module.exports = async function (req, res, next) {
+export default async function (req, res, next) {
   var user = res.locals.user;
   if (user) {
     if (typeof BannedList != "undefined") {
       const Isbanned = BannedList.includes(user.id) ? true : false;
       if (Isbanned) {
         res.sendFile(path.resolve("src/public/assets/banned.html"));
-        fetch(`${process.env.DOMAIN}/api/client/log`, {
+        fetch(`${Deno.env.get("DOMAIN")}/api/client/log`, {
           method: "POST",
           headers: {
             "content-type": "application/json",
           },
           body: JSON.stringify({
-            secret: process.env.SECRET,
+            secret: Deno.env.get("SECRET"),
             title: `Banned User ${user.tag} tried to visit us!`,
             color: "#ff0000",
             desc: `**${user.tag}** (${user.id}) was banned before, and they tried to visit our site at path:\n\`${req.path}\``,

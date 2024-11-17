@@ -1,22 +1,22 @@
-const Discord = require("discord.js");
-const fs = require("fs");
-require("./publicbot/index.js");
-const normalText = require("diacritics").remove;
+import Discord from "discord.js";
+import fs from "node:fs";
+import "./publicbot/index.js";
+import { remove as normalText } from "diacritics";
 var client = new Discord.Client({
   intents: [new Discord.Intents(32767)],
   allowedMentions: { parse: ["users", "roles"], repliedUser: true },
 });
-if (process.env.TOKEN)
-  client.login(process.env.TOKEN);
+if (Deno.env.get("TOKEN"))
+  client.login(Deno.env.get("TOKEN"));
 globalThis.privatebot = client;
-const { fetch } = require("rovel.js");
-const { owners, emojiapprovers, mods, contributors } = require("../data.js");
+import { fetch } from "rovel.js";
+import { owners, emojiapprovers, mods, contributors } from "../data.js";
 client.owners = owners;
 client.emojiapprovers = emojiapprovers;
 client.mods = mods;
 client.contributors = contributors;
 client.commands = [];
-const prefix = process.env.PRIVATE_PREFIX;
+const prefix = Deno.env.get("PRIVATE_PREFIX");
 
 function getMention(mention) {
   if (!mention) return;
@@ -39,19 +39,19 @@ function reload() {
   delete client.commands;
   client.commands = [];
   var commandFiles = fs
-    .readdirSync(__dirname + "/commands")
+    .readdirSync(import.meta.dirname + "/commands")
     .filter((file) => file.endsWith(".js"));
   let ci = 0;
   let cj = commandFiles.length;
   for (var file of commandFiles) {
-    const command = fs.readFileSync(`${__dirname}/commands/${file}`, {
+    const command = fs.readFileSync(`${import.meta.dirname}/commands/${file}`, {
       encoding: "utf8",
       flag: "r",
     });
     ci += 1;
     console.log(`[BOT] Command Loaded - ${file} (${ci}/${cj})`);
     file = file.replace(".js", "");
-    const desc = fs.readFileSync(`${__dirname}/desc/${file}.md`, {
+    const desc = fs.readFileSync(`${import.meta.dirname}/desc/${file}.md`, {
       encoding: "utf8",
       flag: "r",
     });
@@ -60,19 +60,19 @@ function reload() {
 }
 reload();
 var eventFiles = fs
-  .readdirSync(__dirname + "/events")
+  .readdirSync(import.meta.dirname + "/events")
   .filter((file) => file.endsWith(".js"));
 let ei = 0;
 let ej = eventFiles.length;
 for (var file of eventFiles) {
-  const event = fs.readFileSync(`${__dirname}/events/${file}`, {
+  const event = fs.readFileSync(`${import.meta.dirname}/events/${file}`, {
     encoding: "utf8",
     flag: "r",
   });
   ei += 1;
   console.log(`[BOT] Event Loaded - ${file} (${ei}/${ej})`);
   try {
-    eval(event);
+    eval(`(async()=>{${event}})()`);
   } catch (e) {
     console.warn(
       "[BOT] Event Error!\n```\n" + e.stack.slice(0, 1880) + "...\n```\n"
@@ -85,9 +85,9 @@ function DiscordLog({ title, desc, color }) {
     .setTitle(title)
     .setColor(color || "#5865F2")
     .setDescription(desc)
-    .setURL(process.env.DOMAIN)
+    .setURL(Deno.env.get("DOMAIN"))
     .setTimestamp()
-    .setThumbnail(`${process.env.DOMAIN}/favicon.ico`);
+    .setThumbnail(`${Deno.env.get("DOMAIN")}/favicon.ico`);
 
   client.guilds.cache
     .get("602906543356379156")
@@ -95,8 +95,9 @@ function DiscordLog({ title, desc, color }) {
     .send({ embeds: msg });
 }
 
-let router = require("express").Router();
-router.use(require("express").json());
+import express from "express";
+const router = express.Router();
+router.use(express.json());
 router.get("/", (req, res) => {
   res.send("hmm");
 });
@@ -104,8 +105,8 @@ router.post("/eval", (req, res) => {
   if (!req.body.secret) {
     res.json({ err: "no_secret" });
   } else {
-    if (req.body.secret == process.env.SECRET) {
-      const resp = eval(req.body.code);
+    if (req.body.secret == Deno.env.get("SECRET")) {
+      const resp = eval(`(async()=>{${req.body.code}})()`);
       res.json({ resp });
     } else {
       res.json({ err: "unauth" });
@@ -211,7 +212,7 @@ router.get("/contributors/:id", (req, res) => {
 });
 router.post("/log", (req, res) => {
   try {
-    if (req.body.secret === process.env.SECRET) {
+    if (req.body.secret === Deno.env.get("SECRET")) {
       if (req.body.desc.length > 2000) {
         req.body.desc = req.body.desc.slice(0, 1997) + "...";
       }
@@ -220,11 +221,11 @@ router.post("/log", (req, res) => {
         .setColor(req?.body?.color || "#5865F2")
         .setDescription(req?.body?.desc || "No description provided.\n:/&&")
         .setImage(req?.body?.attachment)
-        .setURL(req?.body?.url || process.env.DOMAIN)
+        .setURL(req?.body?.url || Deno.env.get("DOMAIN"))
         .setTimestamp()
         .setThumbnail(
           req?.body?.img ||
-          `${process.env.DOMAIN}/assets/img/bot/logo-512.png`
+          `${Deno.env.get("DOMAIN")}/assets/img/bot/logo-512.png`
         );
       if (req.body.channel != "private") {
         client.guilds.cache
@@ -250,11 +251,11 @@ router.post("/log", (req, res) => {
                   req.body.desc || "No description provided.\n:/&&"
                 )
                 .setImage(req.body.attachment)
-                .setURL(req.body.url || process.env.DOMAIN)
+                .setURL(req.body.url || Deno.env.get("DOMAIN"))
                 .setTimestamp()
                 .setThumbnail(
                   req.body.img ||
-                  `${process.env.DOMAIN}/assets/img/bot/logo-512.png`
+                  `${Deno.env.get("DOMAIN")}/assets/img/bot/logo-512.png`
                 )
                 .setFooter(
                   `${client.users.cache.get(owner).username
@@ -280,4 +281,4 @@ router.post("/log", (req, res) => {
     }
   } catch { }
 });
-module.exports = router;
+export default router;

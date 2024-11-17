@@ -1,7 +1,8 @@
+import rovel from "rovel.js";
 const dayjs = rovel.time;
 const { green, yellow, red, bold } = rovel.text;
-module.exports = async function (req, res, next) {
-  const weburl = process.env.WEBHOOK;
+export default async function (req, res, next) {
+  const weburl = Deno.env.get("WEBHOOK");
   if (req.query.code) {
     var botu = await Bots.findOne({ code: req.query.code });
     if (botu) {

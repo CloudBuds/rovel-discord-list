@@ -1,27 +1,28 @@
-require("module-alias/register");
 Error.stackTraceLimit = Infinity;
-globalThis.WebSocket = require("isomorphic-ws");
+import WebSocket from "isomorphic-ws";
+globalThis.WebSocket = WebSocket;
+import process from "node:process";
 const v = process.version.slice(1, 3);
-if (v < 16 && process.platform != "android") {
-  console.error("[ERROR] Node.js v16 or above is required.");
+if (v < 20 && process.platform != "android") {
+  console.error("[ERROR] Node.js v20 or above is required.");
   process.exit(1);
 }
-var rovel = require("rovel.js");
+import rovel from "rovel.js";
 rovel.env.config();
+import fetch from "node-fetch";
 rovel.fetch = function (url, opts) {
-  return require("node-fetch")(encodeURI(url), opts);
+  return fetch(encodeURI(url), opts);
 };
-const mongoose = require("mongoose");
-mongoose.connect(process.env.DB || "mongodb://127.0.0.1:27017/test", {
+import mongoose from "mongoose";
+mongoose.connect(Deno.env.get("DB") || "mongodb://127.0.0.1:27017/test", {
   useNewUrlParser: true,
   useNewUrlParser: true,
   useUnifiedTopology: true,
-  useFindAndModify: false,
-  useCreateIndex: true,
 });
-globalThis.shell = require("shelljs");
-const loggy = require("@utils/loggy.js");
-if (process.env.WEBLOG_CONSOLE == "true") {
+import shell from "shelljs";
+globalThis.shell = shell;
+import * as loggy from "./utils/loggy.js";
+if (Deno.env.get("WEBLOG_CONSOLE") == "true") {
   globalThis.logg = console.log;
   globalThis.console.log = loggy.log;
   globalThis.logerr = console.error;
@@ -37,27 +38,28 @@ globalThis.console.debug = function (obj) {
   } else console.log(obj);
 };
 
-if (!process.env.DOMAIN) {
+if (!Deno.env.get("DOMAIN")) {
   console.error("[ERROR] No Domain Given!");
   process.exit(0);
 }
-if (process.env.DOMAIN.endsWith("/")) {
-  process.env.DOMAIN = process.env.DOMAIN.slice(0, -1);
+if (Deno.env.get("DOMAIN").endsWith("/")) {
+  Deno.env.set("DOMAIN",Deno.env.get("DOMAIN").slice(0, -1));
 }
 globalThis.db = mongoose.connection;
 
 db.on("error", console.error.bind(console, "connection error:"));
-db.once("open", function () {
+db.once("open", async function () {
   console.log("[DB] We're connected to database!");
-  require("./cache.js");
+  await import("./cache.js");
 });
-require("@bot/index.js");
 
-const Sentry = require("@sentry/node");
-const Tracing = require("@sentry/tracing");
-if (process.env.SENTRY) {
+import "./bot/index.js"
+
+import Sentry from "@sentry/node";
+import Tracing from "@sentry/tracing";
+if (Deno.env.get("SENTRY")) {
   Sentry.init({
-    dsn: process.env.SENTRY,
+    dsn: Deno.env.get("SENTRY"),
     tracesSampleRate: 1.0,
   });
   console.log(
@@ -68,7 +70,8 @@ process.on("unhandledRejection", (error) => {
   console.warn("An Error Occurred!\n" + error.stack);
 });
 
-const { app, port } = require("@server/app.js");
+import {app, port} from "./server/app.js";
+
 globalThis.app = app;
 globalThis.port = port;
 
@@ -116,8 +119,8 @@ process.on("SIGINT", () => {
 
 globalThis.isCopy = function () {
   if (
-    process.env.DOMAIN != "https://discord.rovelstars.com" &&
-    (!process.env.DOMAIN.includes("localhost:") || !process.env.DOMAIN.includes("127.0.0.1:"))
+    Deno.env.get("DOMAIN") != "https://discord.rovelstars.com" &&
+    (!Deno.env.get("DOMAIN").includes("localhost:") || !Deno.env.get("DOMAIN").includes("127.0.0.1:"))
   ) {
     return false;
   } else return true;
@@ -134,11 +137,11 @@ globalThis.server = app.listen(port, () => {
 globalThis.selfbot = async function (path) {
   return await fetch(`https://discord.com/api/v9${path}`, {
     headers: {
-      Authorization: process.env.SELFBOT_TOKEN || "failure management",
+      Authorization: Deno.env.get("SELFBOT_TOKEN") || "failure management",
     },
   }).then((r) => r.json());
 };
-if (process.env.SELFBOT_TOKEN) {
+if (Deno.env.get("SELFBOT_TOKEN")) {
   selfbot("/users/@me").then((user) => {
     if (user.message == "401: Unauthorized") {
       console.log("[SELFBOT] Failed to login:");
@@ -235,7 +238,7 @@ rovel.approx = function (num, opts) {
   }
 };
 
-globalThis.TOPTOKENS = process.env.TOPTOKEN?.split?.("|") || [];
+globalThis.TOPTOKENS = Deno.env.get("TOPTOKEN")?.split?.("|") || [];
 globalThis.TOPGGTOKEN = function () {
   const index = Math.floor(Math.random() * (TOPTOKENS.length - 1) + 1);
   return TOPTOKENS[index];

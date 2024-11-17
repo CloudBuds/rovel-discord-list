@@ -1,8 +1,9 @@
-let router = require("express").Router();
-var { fetch } = require("rovel.js");
-let auth = require("@utils/auth.js");
-const validate = require("validator");
-router.use(require("express").json());
+import { Router } from "express";
+const router = Router();
+import { fetch } from "rovel.js";
+import auth from "../../utils/auth.js";
+import validate from "validator";
+router.use((await import("express")).json());
 
 router.get("/", async (req, res) => {
   try {
@@ -34,13 +35,13 @@ router.get("/", async (req, res) => {
               if (uuu) {
                 uuu.bal += 100;
                 uuu.save();
-                fetch(`${process.env.DOMAIN}/api/client/log`, {
+                fetch(`${Deno.env.get("DOMAIN")}/api/client/log`, {
                   method: "POST",
                   headers: {
                     "content-type": "application/json",
                   },
                   body: JSON.stringify({
-                    secret: process.env.SECRET,
+                    secret: Deno.env.get("SECRET"),
                     title: `Thanks for Referring to ${user.tag} !`,
                     desc: "You received **R$100** for referring them. Thanks for bringing your friends to RDL! Have a nice day!",
                     channel: "private",
@@ -60,18 +61,18 @@ router.get("/", async (req, res) => {
           }).save(async (err, userr) => {
             if (err) return console.log(err);
             Cache.Users.refresh();
-            fetch(`${process.env.DOMAIN}/api/client/log`, {
+            fetch(`${Deno.env.get("DOMAIN")}/api/client/log`, {
               method: "POST",
               headers: {
                 "content-type": "application/json",
               },
               body: JSON.stringify({
-                secret: process.env.SECRET,
+                secret: Deno.env.get("SECRET"),
                 title: `${userr.tag} account created!`,
                 desc: `${userr.tag} (${user.id}) has got a new account automatically on RDL after logining for the first time! So Hey new user **${user.username}**\nWelcome to Rovel Discord List!\nHere you can add your bots, servers, emojis, find your friends, and earn money to vote for your favourite bot!\nSo let's get started on your new journey on RDL!`,
                 owners: user.id,
                 img: user.avatarUrl(128),
-                url: `${process.env.DOMAIN}/users/${user.id}`,
+                url: `${Deno.env.get("DOMAIN")}/users/${user.id}`,
               }),
             });
             res.cookie("key", key, {
@@ -99,13 +100,13 @@ router.get("/", async (req, res) => {
                 roles: ["889746995034587146", "889756830333558814"],
               });
           }
-          fetch(`${process.env.DOMAIN}/api/client/log`, {
+          fetch(`${Deno.env.get("DOMAIN")}/api/client/log`, {
             method: "POST",
             headers: {
               "content-type": "application/json",
             },
             body: JSON.stringify({
-              secret: process.env.SECRET,
+              secret: Deno.env.get("SECRET"),
               title: `${result.tag} logged in!`,
               desc: `Hello ${result.tag}!\nWelcome to RDL!`,
               color: "#1FD816",
@@ -124,13 +125,13 @@ router.get("/", async (req, res) => {
           }
 
           if (result.old) {
-            fetch(`${process.env.DOMAIN}/api/client/log`, {
+            fetch(`${Deno.env.get("DOMAIN")}/api/client/log`, {
               method: "POST",
               headers: {
                 "content-type": "application/json",
               },
               body: JSON.stringify({
-                secret: process.env.SECRET,
+                secret: Deno.env.get("SECRET"),
                 title: `${result.tag} Account moved to V2`,
                 desc: `${result.tag}, thanks for updating your information to V2!`,
                 color: "#1FD816",
@@ -271,4 +272,4 @@ router.get("/earn", (req, res) => {
   }
 });
 
-module.exports = router;
+export default router;

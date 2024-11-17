@@ -1,37 +1,38 @@
-let router = require("express").Router();
-let path = require("path");
-let auth = require("@utils/auth.js");
-const { marked } = require("marked");
-var proxy = require("proxy-list-random");
+import { Router } from "express";
+const router = Router();
+import path from "node:path";
+import auth from "../../utils/auth.js";
+import { marked } from "marked";
+import proxy from "proxy-list-random";
 
 let sitemap;
 
 async function gensitemap() {
   const botsmap = Cache.AllBots.map((bot) => {
-    return `<url>\n<loc>${process.env.DOMAIN}/bots/${bot.id}</loc>\n<priority>0.9</priority>\n<changefreq>weekly</changefreq></url>`;
+    return `<url>\n<loc>${Deno.env.get("DOMAIN")}/bots/${bot.id}</loc>\n<priority>0.9</priority>\n<changefreq>weekly</changefreq></url>`;
   }).join("\n");
   const serversmap = Cache.AllServers.map((server) => {
-    return `<url>\n<loc>${process.env.DOMAIN}/servers/${server.id}</loc>\n<priority>0.9</priority>\n<changefreq>weekly</changefreq></url>`;
+    return `<url>\n<loc>${Deno.env.get("DOMAIN")}/servers/${server.id}</loc>\n<priority>0.9</priority>\n<changefreq>weekly</changefreq></url>`;
   }).join("\n");
   const Sitemap =
     '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">' +
-    `\n<url>\n<loc>${process.env.DOMAIN}/</loc>\n<priority>1.00</priority><changefreq>weekly</changefreq>\n</url>\n` +
+    `\n<url>\n<loc>${Deno.env.get("DOMAIN")}/</loc>\n<priority>1.00</priority><changefreq>weekly</changefreq>\n</url>\n` +
     botsmap +
     serversmap +
     "</urlset>";
   return Sitemap;
 }
 if (
-  process.env.DOMAIN == "https://discord.rovelstars.com" &&
-  !process.env.DOMAIN.includes("localhost")
+  Deno.env.get("DOMAIN") == "https://discord.rovelstars.com" &&
+  !Deno.env.get("DOMAIN").includes("localhost")
 ) {
   async () => {
     sitemap = await gensitemap();
-    fetch(`https://google.com/ping?sitemap=${process.env.DOMAIN}/sitemap.xml`);
+    fetch(`https://google.com/ping?sitemap=${Deno.env.get("DOMAIN")}/sitemap.xml`);
   };
   setInterval(async function () {
     sitemap = await gensitemap();
-    fetch(`https://google.com/ping?sitemap=${process.env.DOMAIN}/sitemap.xml`);
+    fetch(`https://google.com/ping?sitemap=${Deno.env.get("DOMAIN")}/sitemap.xml`);
   }, 3600000);
 }
 
@@ -56,11 +57,11 @@ router.get("/servers/:id", async (req, res) => {
   var r;
   if (!server) return res.render("404.ejs", { path: req.originalUrl });
   else {
-    r = await fetch(`${process.env.DOMAIN}/api/client/users/${server.owner}`);
+    r = await fetch(`${Deno.env.get("DOMAIN")}/api/client/users/${server.owner}`);
     r = await r.json();
     server.owner = r.tag;
     r = await fetch(
-      `${process.env.DOMAIN}/api/servers/${req.params.id}/invite`
+      `${Deno.env.get("DOMAIN")}/api/servers/${req.params.id}/invite`
     );
     r = await r.json();
     if (!r.err) {
@@ -86,7 +87,7 @@ router.get("/servers/:id", async (req, res) => {
 });
 
 router.get("/servers/:id/join", (req, res) => {
-  fetch(`${process.env.DOMAIN}/api/servers/${req.params.id}/invite`)
+  fetch(`${Deno.env.get("DOMAIN")}/api/servers/${req.params.id}/invite`)
     .then((r) => r.json())
     .then((d) => {
       if (d.err) res.json({ err: d.err });
@@ -102,8 +103,8 @@ router.get("/manifest.json", (req, res) => {
 
 router.get("/sitemap.xml", async (req, res) => {
   if (
-    process.env.DOMAIN == "https://discord.rovelstars.com" &&
-    !process.env.DOMAIN.includes("localhost")
+    Deno.env.get("DOMAIN") == "https://discord.rovelstars.com" &&
+    !Deno.env.get("DOMAIN").includes("localhost")
   ) {
     res.header("Content-Type", "application/xml");
     if (!sitemap) {
@@ -151,7 +152,7 @@ router.get("/bots/:slug/invite", (req, res, next) => {
 });
 
 router.get("/bots/:id", async (req, res) => {
-  fetch(`${process.env.DOMAIN}/api/bots/${req.params.id}/sync`).then(
+  fetch(`${Deno.env.get("DOMAIN")}/api/bots/${req.params.id}/sync`).then(
     async () => {
       var bot = Cache.Bots.findOneById(req.params.id);
       if (!bot) {
@@ -160,7 +161,7 @@ router.get("/bots/:id", async (req, res) => {
         bot.desc = marked.parse(bot.desc.replace(/&gt;+/g, ">"));
         bot.owner = [];
         for (const id of bot.owners) {
-          await fetch(`${process.env.DOMAIN}/api/client/users/${id}`)
+          await fetch(`${Deno.env.get("DOMAIN")}/api/client/users/${id}`)
             .then((r) => r.json())
             .then(async (d) => {
               await bot.owner.push(d.tag);
@@ -321,18 +322,18 @@ router.get("/login", (req, res) => {
 router.get("/logout", async (req, res) => {
   if (req.cookies["key"]) {
     const user = await auth.getUser(req.cookies["key"]).catch(() => { });
-    fetch(`${process.env.DOMAIN}/api/client/log`, {
+    fetch(`${Deno.env.get("DOMAIN")}/api/client/log`, {
       method: "POST",
       headers: {
         "content-type": "application/json",
       },
       body: JSON.stringify({
-        secret: process.env.SECRET,
+        secret: Deno.env.get("SECRET"),
         title: `${user ? user.tag : "IDK who"} Logged out!`,
         desc: `Bye bye ${user ? user.tag : "Unknown Guy"
           }\nSee you soon back on RDL!`,
         color: "#ff0000",
-        img: user ? user.avatarUrl(128) : `${process.env.DOMAIN}/favicon.ico`,
+        img: user ? user.avatarUrl(128) : `${Deno.env.get("DOMAIN")}/favicon.ico`,
         owners: user ? user.id : null,
       }),
     });
@@ -358,4 +359,4 @@ router.get("/ads.txt", (req, res) => {
   res.sendFile(path.resolve("src/public/assets/ads.txt"));
 });
 
-module.exports = router;
+export default router;

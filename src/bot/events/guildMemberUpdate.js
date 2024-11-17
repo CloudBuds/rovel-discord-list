@@ -22,7 +22,7 @@ client.on("guildMemberUpdate", (olduser, newuser) => {
     Users.findOne({ id: newuser.id }).then((user) => {
       if (!user) {
       } else {
-        fetch(`${process.env.DOMAIN}/api/client/users/${user.id}`)
+        fetch(`${Deno.env.get("DOMAIN")}/api/client/users/${user.id}`)
           .then((r) => r.json())
           .then((u) => {
             if (
